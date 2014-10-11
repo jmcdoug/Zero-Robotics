@@ -1,0 +1,12 @@
+//ctrl
+void setTargetAngVel(vec targetAngVel) {
+	vec torques;
+	mathVecSubtract(torques, targetAngVel, myState + 9, 3);
+	vecScale(torques, floatOne / accPerNM);
+	#if printDebug
+	DEBUG(("Angular Velocity Targeting Info\n"));
+	printVec("\tTarget AngVel (rad/s)", targetAngVel);
+	printVec("\tTorques (rad/s^2)", torques);
+	#endif
+	api.setTorques(torques);
+}
