@@ -1,0 +1,57 @@
+#define restTime 2
+#define modu 7
+#define modu2 7
+#define allowErr 0.000001f
+
+void getItem (int itemNo) 
+{
+	if (time < modu + restTime - 1) 
+	{
+		float redvel = 0.001f;
+		api.setVelocityTarget(makeVec(redvel, time ? 0.060f : 0.007f, (time % 2) ? -0.001f : 0.001f));
+		return;
+	}
+	else
+	{
+	#if printDebug
+	DEBUG(("getItem(%d)\n", itemNo));
+	printVec("\tItemPos (m)", ilocs[itemNo]);
+	DEBUG(("\tVel Magnitude (m/s)\t%.3f\n", mathVecMagnitude(myState + 3, 3)));
+	DEBUG(("\tAngvel Magnitude (deg/s)\t%.3f\n", mathVecMagnitude(myState + 9, 3) * 57.296f));
+	DEBUG(("\tDis from Item (m)\t%.3f\n", disBetweenPts(myState, ilocs[itemNo])));
+	#endif
+	api.setPositionTarget(ilocs[itemNo]);
+	if (hitTarget(myState, ilocs[itemNo])) {
+		#if printDebug
+		DEBUG(("\tHit target\n"));
+		#endif
+		setTargetAngVel(makeVec(floatZero, floatZero, pickUpSpeed));
+	}
+	else 
+	{
+		setTargetAngVel(zeroVec);
+	}
+	}
+}
+
+void johnGetItem(int itemNo)
+{
+	#if printDebug
+	DEBUG(("getItem(%d)\n", itemNo));
+	printVec("\tItemPos (m)", ilocs[itemNo]);
+	DEBUG(("\tVel Magnitude (m/s)\t%.3f\n", mathVecMagnitude(myState + 3, 3)));
+	DEBUG(("\tAngvel Magnitude (deg/s)\t%.3f\n", mathVecMagnitude(myState + 9, 3) * 57.296f));
+	DEBUG(("\tDis from Item (m)\t%.3f\n", disBetweenPts(myState, ilocs[itemNo])));
+	#endif
+	api.setPositionTarget(ilocs[itemNo]);
+	if (hitTarget(myState, ilocs[itemNo])) {
+		#if printDebug
+		DEBUG(("\tHit target\n"));
+		#endif
+		setTargetAngVel(makeVec(floatZero, floatZero, pickUpSpeed));
+	}
+	else 
+	{
+		setTargetAngVel(zeroVec);
+	}
+}
