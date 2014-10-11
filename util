@@ -1,0 +1,148 @@
+//util
+
+vec utilVec1;
+
+void attToTarget (vec satPos, vec targetPos, vec att) {
+	mathVecSubtract(att, targetPos, satPos, 3);
+	mathVecNormalize(att, 3);
+}
+
+inline float pointToLine(vec linept1, vec linept2, vec checkpt) {
+	// see http://mathworld.wolfram.com/Point-LineDistance3-Dimensional.html
+	vec numerator1, numerator2, denominator, cross;
+	mathVecSubtract(numerator1, checkpt, linept1, 3);
+	mathVecSubtract(numerator2, checkpt, linept2, 3);
+	mathVecSubtract(denominator, linept2, linept1, 3);
+	mathVecCross(cross, numerator1, numerator2);
+	return (mathVecMagnitude(cross,3)/mathVecMagnitude(denominator,3));
+}
+
+inline float disBetweenPts (vec pt1, vec pt2) {
+	mathVecSubtract(utilVec1, pt2, pt1, 3);
+	return mathVecMagnitude(utilVec1, 3);
+}
+
+bool hitTarget(ZRState satState, vec targetPos) {
+	return (mathVecMagnitude(satState + 3, 3) < stillVel && disBetweenPts(satState, targetPos) < stillDis);
+}
+
+void vecScale (vec v, float a) {
+	v[0] *= a;
+	v[1] *= a;
+	v[2] *= a;
+}
+
+vec storeTemp;
+
+float * makeVec (float a, float b, float c) {
+	storeTemp[0] = a;
+	storeTemp[1] = b;
+	storeTemp[2] = c;
+	return storeTemp;
+}
+
+inline void vecCpy (vec src, vec dest) {
+	dest[0] = src[0];
+	dest[1] = src[1];
+	dest[2] = src[2];
+}
+
+float MIN (float a, float b) {
+	return (a < b ? a : b);
+}
+
+bool atTarget(vec a) {
+	if(fabsf(a[0]-myState[6]) > 0.01f) return false;
+	if(fabsf(a[1]-myState[7]) > 0.01f) return false;
+	if(fabsf(a[2]-myState[8]) > 0.01f) return false;
+	return true;
+}
+
+int getClosestToUs() {
+	float d = 100.0f,dp=0.0f;
+	int a = -1;
+	for(int i=0; i<16; i++) {
+		if(game.haveDebris(0,i) || game.haveDebris(1,i)) continue;
+		dp = disBetweenPts(myState,deblocs[i]);
+		if(d>dp) {
+			d=dp;
+			a=i;
+		}
+	}
+	return a;
+}
+
+int getClosestToGravLoc() {
+	float d = 100.0f,dp=0.0f;
+	int a = -1;
+	for(int i=0; i<16; i++) {
+		if(game.haveDebris(0,i) || game.haveDebris(1,i)) continue;
+		dp = disBetweenPts(gravLoc,deblocs[i]);
+		if(d>dp) {
+			d=dp;
+			a=i;
+		}
+	}
+	return a;
+}
+
+int getFarthestToGravLoc() {
+	float d = 0.0f,dp=0.0f;
+	int a = -1;
+	for(int i=0; i<16; i++) {
+		if(game.haveDebris(0,i) || game.haveDebris(1,i)) continue;
+		if(red?deblocs[i][0]<0:deblocs[i][0]>0)
+		{
+			dp = disBetweenPts(gravLoc,deblocs[i]);
+			if(d<dp) {
+				d=dp;
+				a=i;
+			}
+		}
+	}
+	return a;
+}
+
+int chooseDebrisTarget()
+{
+  int target = -1;
+  bool onSide = false;
+  
+  for(int i = 0; i < 16; i++)
+  {
+    if ((red?deblocs[i][0]>0:deblocs[i][0]<0) && !(game.haveDebris(0,i) || game.haveDebris(0,i)))
+    onSide = true;
+  }
+  if (onSide)
+    target = getFarthestToGravLoc();
+  else
+    target = getClosestToGravLoc();
+  
+  return target;
+}
+
+float timeToGravLoc()
+{
+	float temp[3] =
+		{
+			((sqrt((2*.011*gravLoc[0])-(2*.011*myState[0]+(myState[3]*myState[3])))-myState[3])/.011),
+			((sqrt((2*.011*gravLoc[1])-(2*.011*myState[1]+(myState[4]*myState[4])))-myState[4])/.011),
+			((sqrt((2*.011*gravLoc[2])-(2*.011*myState[2]+(myState[5]*myState[5])))-myState[5])/.011)
+		};
+	return mathVecMagnitude(temp, 3);
+}
+
+void vecToTarget (float curPos[3], float targetPos[3], float vec[3])
+{
+    //BEGIN::PROC::vecToTarget
+    /**
+     * Purpose: Generates the vector from curPos to targetPos
+     * Parameters:
+     *   float curPos[3]: current position of SPHERE
+     *   float targetPos[3]: position vector will point towards
+     *   float vec[3]: array to store vector into
+     */
+    
+    mathVecSubtract(vec, targetPos, curPos, 3);
+    //END::PROC::vecToTarget
+}
