@@ -1,0 +1,100 @@
+//Declare any variables shared between functions here
+
+void init(){
+	//This function is called once when your code is first loaded.
+
+	//IMPORTANT: make sure to set any variables that need an initial value.
+	//Do not assume variables will be set to 0 automatically!
+	api.getMyZRState(myState);
+	api.getOtherZRState(otherState);
+	zeroVec[0] = zeroVec[1] = zeroVec[2] = 0.0f;
+	
+	time = -1;
+	red = myState[0] < floatZero;
+	zeroVec[0] = zeroVec[1] = zeroVec[2] = floatZero;
+	
+	ilocs[0][0] = .50f;
+	ilocs[0][1] = .65f;
+	ilocs[0][2] = floatZero;
+	
+	ilocs[1][0] = -.50f;
+	ilocs[1][1] = .65f;
+	ilocs[1][2] = floatZero;
+	
+	fireLoc[0] = red? -.55f : .55f;
+	fireLoc[1] = .70f;
+	fireLoc[2] = red? -0.42f : 0.42f;
+	
+	fireAtt[0] = red? 1.f : -1.f;
+	fireAtt[2] = red? .76f : -.76f;
+	fireAtt[1] = floatZero;
+	
+	cometLoc[0] = floatZero;
+	cometLoc[1] = .8f;
+	cometLoc[2] = floatZero;
+	
+}
+
+void loop(){
+	//This function is called once per second.  Use it to control the satellite.
+	
+	//Variable Updates
+	time ++;
+	api.getMyZRState(myState);
+  api.getOtherZRState(otherState);
+	isComet = time > 90;
+	charges =  game.laserShotsRemaining();
+	ourLoc[0] = myState[0];
+	ourLoc[1] = myState[1];
+	ourLoc[2] = myState[2];
+	
+	game.getCometState(0, cometState);
+	game.predictCometState(2, cometState, nextCometState);
+	attToTarget(myState, cometState, att);
+	
+	cometLoc[0] = nextCometState[0];
+	cometLoc[1] = nextCometState[1];
+	cometLoc[2] = nextCometState[2];
+	
+	fireVel[0] = floatZero;
+	fireVel[1] = nextCometState[4];
+	fireVel[2] = nextCometState[5];
+	
+	if(!isComet && charges == 0 && time < 45)
+		getItem(red ? 0 : 1);
+	else if(!isComet && charges < 20 )
+		getItem(red ? 1: 0);
+	else if(!isComet && charges > 0)
+	{
+		api.setPositionTarget(fireLoc);
+		api.setAttitudeTarget(fireAtt);
+		if( disBetweenPts(ourLoc, fireLoc) > .36f )
+		{
+			fireVel[0] = floatZero;
+			fireVel[1] = floatZero;
+			fireVel[2] = red? -.1f : .1f;
+			api.setVelocityTarget(fireVel);
+		}
+		
+		if(time>87)
+		{
+			fireVel[0] = floatZero;
+			fireVel[1] = -.01f;
+			fireVel[2] = red? -.01f : .01f ;
+			api.setVelocityTarget(fireVel);
+		}
+	}
+	else if( isComet && charges > 0)
+	{
+		api.setAttitudeTarget(fireAtt);
+		game.shootLaser();
+		api.setVelocityTarget(fireVel);
+	}
+	else
+	{
+		cometLoc[0] += red? -0.015 : .015f;
+		cometLoc[1] += 0.f;
+		cometLoc[2] += red? 0.015 : -.015f;
+		api.setPositionTarget(cometLoc);
+	}
+}
