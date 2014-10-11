@@ -1,0 +1,59 @@
+//adef
+typedef float vec[3];
+
+#define mass 4.3f
+#define accPerNM 43.0f
+#define floatOne 1.0f
+#define floatZero 0.0f
+#define floatItsml 1.0E-4f
+#define printDebug 1
+#define stillDis 0.0455f
+#define stillVel 0.0090f
+#define pickUpSpeed 0.57f
+#define gravCons 0.0749108f
+
+vec item0;
+vec item1;
+
+vec zeroVec;
+vec cometLoc;
+vec cometVel;
+vec ourLoc;
+vec deblocs[10];
+vec fireLoc;
+vec fireAtt;
+vec fireVel;
+vec gravLoc;
+vec att;
+vec pOffset;
+vec pXOffset;
+vec vOffset;
+vec vXOffset;
+
+float cometState[6];
+float nextCometState[6];
+
+bool red;
+bool otherRush;
+bool getDebris;
+bool usingLaser;
+
+#define printVec(name, v) DEBUG(("%s\t%.3f\t%.3f\t%.3f\n", name, v[0], v[1], v[2]))
+
+int charges;
+ZRState myState;
+ZRState otherState;
+int time;
+bool isComet;
+int debrisTargetID;
+
+
+//Calculations
+
+#define acc 0.01f
+/*#define i0x 21
+#define i0y 21
+#define i12y 26
+#define i12z 121*/
+
+vec ilocs[2];
